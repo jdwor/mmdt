@@ -1,0 +1,13 @@
+Package: mmdt
+Type: Package
+Title: MMDT: A Local Group Differences Test for Multivariate Density Neuroimaging Outcomes
+Version: 0.1.0
+Authors@R: person(given = "Jordan D.", family = "Dworkin",  
+  email = "jdwor@pennmedicine.upenn.edu", role = c("aut", "cre"))
+Maintainer: Jordan D. Dworkin <jdwor@pennmedicine.upenn.edu>
+Description: Functions for running the multi-modal density test (mmdt) and interpreting results. This test transforms multi-modal neuroimaging data into subject-level multivariate densities and tests for group differences at local points within the multivariate density space. 
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: stats, pbmcapply, pbapply, parallel, ks, RNifti
