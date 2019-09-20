@@ -1,6 +1,6 @@
 #' @keywords internal
 
-getNullMat=function(x,mats,group,gridsize){
+getNullMat=function(x,mats,group,gridsize,method){
   g.cats=unique(group)
   group[group==g.cats[1]]=1
   group[group==g.cats[2]]=2
@@ -22,7 +22,13 @@ getNullMat=function(x,mats,group,gridsize){
   ts=(m1-m2)/sqrt(v1/num1+v2/num2)
   ts[is.na(ts)]<-0
   ts[(v1==0 | v2==0)]<-0
-  maxval=max(abs(ts))
+
+  if(method=="maxt"){
+    maxval=max(abs(ts))
+  }else if(method=="tfce"){
+    tf=getTFCE(ts,parallel=F)
+    maxval=max(tf)
+  }
 
   return(maxval)
 }

@@ -5,7 +5,8 @@
 \title{Multi-Modal Density Test}
 \usage{
 mmdt(mmdt.obj, mins = NULL, maxs = NULL, gridsize = NULL, H = NULL,
-  nperm = 500, parallel = TRUE, cores = 2, pb = TRUE)
+  mc.adjust = "bh", nperm = 500, parallel = TRUE, cores = 2,
+  pb = TRUE)
 }
 \arguments{
 \item{mmdt.obj}{an mmdt object obtained using the get.mmdt.obj function.}
@@ -23,6 +24,12 @@ If NULL, this value defaults to 151x151 for two modalities, 51x51x51 for three, 
 Must be specified manually when analyzing 4-6 modalities.}
 
 \item{H}{is the bandwidth matrix used for kernel density estimation. If NULL, a plug-in bandwidth estimator is used.}
+
+\item{mc.adjust}{is a string defining the method of multiple comparisons to use.
+Default is "BY", which controls FDR using the Benjamini-Yekutieli procedure.
+The additional options are: "maxt", which controls global FWER using max-t correction,
+and "tfce", which controls global FWER using threshold-free cluster enhancement.
+Both of the latter options use permutation to determine significance.}
 
 \item{nperm}{is an integer value that gives the number of permutations desired.}
 

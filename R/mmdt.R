@@ -11,6 +11,11 @@
 #' If NULL, this value defaults to 151x151 for two modalities, 51x51x51 for three, and 21x21x21x21 for four.
 #' Must be specified manually when analyzing 4-6 modalities.
 #' @param H is the bandwidth matrix used for kernel density estimation. If NULL, a plug-in bandwidth estimator is used.
+#' @param mc.adjust is a string defining the method of multiple comparisons to use.
+#' Default is "BY", which controls FDR using the Benjamini-Yekutieli procedure.
+#' The additional options are: "maxt", which controls global FWER using max-t correction,
+#' and "tfce", which controls global FWER using threshold-free cluster enhancement.
+#' Both of the latter options use permutation to determine significance.
 #' @param nperm is an integer value that gives the number of permutations desired.
 #' @param parallel is a logical value that indicates whether the user's computer
 #' is Linux or Unix (i.e. macOS), and should run the code in parallel.
@@ -43,8 +48,8 @@
 #' @export
 
 mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
-               gridsize=NULL,H=NULL,nperm=500,
-               parallel=TRUE,cores=2,pb=TRUE){
+               gridsize=NULL,H=NULL,mc.adjust="bh",
+               nperm=500,parallel=TRUE,cores=2,pb=TRUE){
 
   ids=mmdt.obj$ids
   groups=mmdt.obj$groups
@@ -78,18 +83,39 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
   pmat.ttest=resmats$ps
   rm(resmats)
 
-  cat("Getting permutation-corrected p-values\n")
-  nullmats=getNullDist(nperm,mats,group,gridsize,parallel,pb,cores)
+  cat("Getting corrected p-values\n")
 
-  pmat.perm=tmat
-  pvals=tmat[!is.na(tmat)]
-  pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats)))
-  pmat.perm[!is.na(tmat)]<-pvals
+  if(mc.adjust=="BY"){
+    pmat.corr=tmat
+    pvals=pmat.corr[!is.na(pmat.corr)]
+    pvals=p.adjust(pvals,method="BY")
+    pmat.corr[!is.na(pmat.corr)]=pvals
+  }else if(mc.adjust=="maxt"){
+    nullmats=getNullDist(method="maxt",nperm,mats,group,
+                         gridsize,parallel,pb,cores)
+    pmat.corr=tmat
+    pvals=tmat[!is.na(tmat)]
+    pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats)))
+    pmat.corr[!is.na(tmat)]<-pvals
+  }else if(mc.adjust=="tfce"){
+    nullmats=getNullDist(method="tfce",nperm,mats,group,
+                         gridsize,parallel,pb,cores)
+    pmat.corr=getTFCE(tmat,parallel=parallel,cores=cores)
+    pvals=pmat.corr[!is.na(pmat.corr)]
+    pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats)))
+    pmat.corr[!is.na(pmat.corr)]<-pvals
+  }else{
+    print("mc.adjust must be 'BY', 'maxt', or 'tfce'. Defaulting to BY")
+    pmat.corr=tmat
+    pvals=pmat.corr[!is.na(pmat.corr)]
+    pvals=p.adjust(pvals,method="BY")
+    pmat.corr[!is.na(pmat.corr)]=pvals
+  }
 
   return(list(subject.densities=mats,
               teststat.matrix=tmat,
               pval.matrix.uncorrected=pmat.ttest,
-              pval.matrix.perm=pmat.perm,
+              pval.matrix.corrected=pmat.corr,
               evaluated.points=eval.points))
 }
 
