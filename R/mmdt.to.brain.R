@@ -50,52 +50,52 @@ mmdt.to.brain<-function(mmdt.results,type="t-statistic",mask,modal1,modal2,
   evals=do.call(cbind,mmdt.results$evaluated.points)
   mask=RNifti::readNifti(mask)
 
-  modals=c(modal1,modal2,modal3,modal4,modal5,modal6)
-  non.nulls=which(!is.null(modals))
+  modals=list(modal1,modal2,modal3,modal4,modal5,modal6)
+  non.nulls=which(unlist(lapply(modals,is.null))==F)
   ims=modals[non.nulls]
 
-  if(length(ims)!=length(evals)){
+  if(length(ims)!=ncol(evals)){
     stop("Must enter the same modalities that were used to create 'mmdt.results'")
   }
 
   mat=matrix(nrow=sum(mask==T),ncol=length(ims))
   for(i in 1:length(ims)){
-    thisim=RNifti::readNifti(ims[i])
+    thisim=RNifti::readNifti(ims[[i]])
     thisim=thisim[mask==T]
     mat[,i]=thisim
   }
 
   if(type=="t-statistic"){
-    mat=mmdt.results$teststat.matrix
+    grid=mmdt.results$teststat.matrix
   }else if(type=="p-value"){
     if(by==T){
-      mat=mmdt.results$pval.matrix.BY.corrected
-      mat[mmdt.results$pval.matrix.BY.corrected>.05]=0
-      mat[mmdt.results$pval.matrix.BY.corrected<.05 &
+      grid=mmdt.results$pval.matrix.BY.corrected
+      grid[mmdt.results$pval.matrix.BY.corrected>.05]=0
+      grid[mmdt.results$pval.matrix.BY.corrected<.05 &
             mmdt.results$teststat.matrix>0]=1
-      mat[mmdt.results$pval.matrix.BY.corrected<.05 &
+      grid[mmdt.results$pval.matrix.BY.corrected<.05 &
             mmdt.results$teststat.matrix<0]=-1
-      mat[!(mat%in%c(1,-1))]=0
+      grid[!(grid%in%c(1,-1))]=0
     }else if(maxt==T){
-      mat=mmdt.results$pval.matrix.maxt.corrected
-      mat[mmdt.results$pval.matrix.maxt.corrected>.05]=0
-      mat[mmdt.results$pval.matrix.maxt.corrected<.05 &
+      grid=mmdt.results$pval.matrix.maxt.corrected
+      grid[mmdt.results$pval.matrix.maxt.corrected>.05]=0
+      grid[mmdt.results$pval.matrix.maxt.corrected<.05 &
             mmdt.results$teststat.matrix>0]=1
-      mat[mmdt.results$pval.matrix.maxt.corrected<.05 &
+      grid[mmdt.results$pval.matrix.maxt.corrected<.05 &
             mmdt.results$teststat.matrix<0]=-1
-      mat[!(mat%in%c(1,-1))]=0
+      grid[!(grid%in%c(1,-1))]=0
     }else{
-      mat=mmdt.results$pval.matrix.tfce.corrected
-      mat[mmdt.results$pval.matrix.tfce.corrected>.05]=0
-      mat[mmdt.results$pval.matrix.tfce.corrected<.05 &
+      grid=mmdt.results$pval.matrix.tfce.corrected
+      grid[mmdt.results$pval.matrix.tfce.corrected>.05]=0
+      grid[mmdt.results$pval.matrix.tfce.corrected<.05 &
             mmdt.results$teststat.matrix>0]=1
-      mat[mmdt.results$pval.matrix.tfce.corrected<.05 &
+      grid[mmdt.results$pval.matrix.tfce.corrected<.05 &
             mmdt.results$teststat.matrix<0]=-1
-      mat[!(mat%in%c(1,-1))]=0
+      grid[!(grid%in%c(1,-1))]=0
     }
   }
-  vals=lapply(1:nrow(mat),matchVox,evals=evals,
-              grid=mat,num=ncol(mat))
+  vals=lapply(1:nrow(mat),matchVox,mat=mat,
+              evals=evals,grid=grid,num=ncol(mat))
   vals=as.vector(unlist(vals))
 
   outim=mask
