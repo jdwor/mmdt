@@ -20,7 +20,7 @@
 #' @importFrom ggplot2 guides
 #' @importFrom ggplot2 guide_legend
 #' @importFrom ggplot2 scale_fill_gradient2
-#' @return A description of overall group differences, and approximate regions that drive overall differences
+#' @return A raster image showing either the full t-statistic map or a map of regions at which significant differences were detected.
 #' @examples \dontrun{
 #' mmdt.obj = get.mmdt.obj(masks = masks, modal1 = t1s, modal2 = flairs,
 #'                         ids = ids, groups = groups)

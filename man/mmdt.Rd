@@ -59,13 +59,5 @@ results = mmdt(mmdt.obj)
 
 eval = results$evaluated.points
 t.mat = results$teststat.matrix
-p.mat = results$pval.matrix.perm
-
-col1 = colorRampPalette(c("red", "white", "blue"))
-image(eval[[1]], eval[[2]], t.mat, col = col1)
-
-col2a=colorRampPalette(c("darkgoldenrod4", "darkgoldenrod1"))(10)
-col2b=colorRampPalette(c("darkseagreen4", "white"))(190)
-col2=c(col2a, col2b)
-image(eval[[1]], eval[[2]], p.mat, col = col2)}
+p.mat = results$pval.matrix.perm}
 }

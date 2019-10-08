@@ -17,7 +17,7 @@ Entries should be "NA" for the two modalities to be plotted, and other entries s
 value along the other dimensions at which the results should be plotted.}
 }
 \value{
-A description of overall group differences, and approximate regions that drive overall differences
+A raster image showing either the full t-statistic map or a map of regions at which significant differences were detected.
 }
 \description{
 This function creates a summary of the mmdt output.
