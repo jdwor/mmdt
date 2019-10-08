@@ -2,7 +2,7 @@
 #' @importFrom RNifti readNifti
 
 readSubject<-function(x,masks,modals,ids,groups){
-  mask=masks[x]
+  mask=RNifti::readNifti(masks[x])
   id=ids[x]
   group=groups[x]
 
