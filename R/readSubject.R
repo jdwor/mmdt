@@ -11,7 +11,7 @@ readSubject<-function(x,masks,modals,ids,groups){
   mat[,1]=id
   mat[,2]=group
   for(i in 1:length(ims)){
-    thisim=RNifti::readNifti(ims[i])
+    thisim=RNifti::readNifti(ims[[i]])
     thisim=thisim[mask==T]
     mat[,i+2]=thisim
   }

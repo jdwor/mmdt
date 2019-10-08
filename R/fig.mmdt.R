@@ -64,16 +64,19 @@ fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
       df$Color=as.factor(as.vector(mat))
 
       ggplot(df) + geom_raster(aes_string('x', 'y', fill = 'Color')) +
-        scale_fill_manual(values=c("#B2182B","#FFFFFF","#2166AC"),
-                          breaks=c(-1,0,1),
-                          labels=c(paste0("More\nvoxels in\ngroup ",groups[2]),
-                                   "",
-                                   paste0("More\nvoxels in\ngroup ",groups[1]))) + theme_bw() +
-        xlab("Modality 1") + ylab("Modality 2") +
+        scale_fill_manual(values=c("-1"="#B2182B",
+                                   "0"="#FFFFFF",
+                                   "1"="#2166AC"),
+                          labels=c("-1"=paste0("More voxels\nin group ",groups[2]),
+                                   "0"="No significant\ndifference",
+                                   "1"=paste0("More voxels\nin group ",groups[1]))) +
+        theme_bw() + xlab("Modality 1") + ylab("Modality 2") +
         theme(legend.position="right",
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()) +
-        ggtitle(thistitle)
+        guides(fill=guide_legend(
+          keywidth=0.2, keyheight=0.5,
+          default.unit="inch")) + ggtitle(thistitle)
     }else{
       if(length(coords)!=length(evals) | sum(is.na(coords))!=2){
         stop("'coords' must be the same length as the number of modalities analyzed,
@@ -126,8 +129,9 @@ fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
                                    "1"="#2166AC"),
                           labels=c("-1"=paste0("More voxels\nin group ",groups[2]),
                                    "0"="No significant\ndifference",
-                                   "1"=paste0("More voxels\nin group ",groups[1]))) + theme_bw() +
-        xlab(paste0("Modality ",wmods[1])) + ylab(paste0("Modality ",wmods[2])) +
+                                   "1"=paste0("More voxels\nin group ",groups[1]))) +
+        theme_bw() + xlab(paste0("Modality ",wmods[1])) +
+        ylab(paste0("Modality ",wmods[2])) +
         theme(legend.position="right",
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()) +

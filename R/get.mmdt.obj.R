@@ -39,6 +39,11 @@ get.mmdt.obj<-function(masks,modal1,modal2,modal3=NULL,
   non.nulls=which(unlist(lapply(modals,is.null))==F)
   modals=modals[non.nulls]
 
+  if(!file.exists(paste0(getwd(),"/",masks[1]))){
+    stop("Error reading subjects: Make sure your working directory is compatible
+         with the filepaths listed in your mask and modal# vectors.")
+  }
+
   if(length(unique(groups))!=2){
     stop("'groups' must have two unique categories")
   }
@@ -52,26 +57,34 @@ get.mmdt.obj<-function(masks,modal1,modal2,modal3=NULL,
   if(parallel==T){
     if(pb==T){
       data=pbmclapply(1:len,readSubject,masks=masks,modals=modals,
-                      ids=ids,groups=groups,cores=cores)
+                      ids=ids,groups=groups,mc.cores=cores)
       data=do.call(rbind,data)
-      mmdt.obj=list(ids=data[,1],groups=data[,2],modals=data[,3:ncol(data)])
+      mmdt.obj=list(ids=data[,1],groups=data[,2],
+                    modals=apply(data[,3:ncol(data)],2,as.numeric))
+      return(mmdt.obj)
     }else{
       data=mclapply(1:len,readSubject,masks=masks,modals=modals,
-                    ids=ids,groups=groups,cores=cores)
+                    ids=ids,groups=groups,mc.cores=cores)
       data=do.call(rbind,data)
-      mmdt.obj=list(ids=data[,1],groups=data[,2],modals=data[,3:ncol(data)])
+      mmdt.obj=list(ids=data[,1],groups=data[,2],
+                    modals=apply(data[,3:ncol(data)],2,as.numeric))
+      return(mmdt.obj)
     }
   }else{
     if(pb==T){
       data=pblapply(1:len,readSubject,masks=masks,modals=modals,
                     ids=ids,groups=groups)
       data=do.call(rbind,data)
-      mmdt.obj=list(ids=data[,1],groups=data[,2],modals=data[,3:ncol(data)])
+      mmdt.obj=list(ids=data[,1],groups=data[,2],
+                    modals=apply(data[,3:ncol(data)],2,as.numeric))
+      return(mmdt.obj)
     }else{
       data=lapply(1:len,readSubject,masks=masks,modals=modals,
                   ids=ids,groups=groups)
       data=do.call(rbind,data)
-      mmdt.obj=list(ids=data[,1],groups=data[,2],modals=data[,3:ncol(data)])
+      mmdt.obj=list(ids=data[,1],groups=data[,2],
+                    modals=apply(data[,3:ncol(data)],2,as.numeric))
+      return(mmdt.obj)
     }
   }
 }

@@ -4,12 +4,12 @@
 \alias{fig.mmdt}
 \title{Plot Results of Multi-Modal Density Test}
 \usage{
-fig.mmdt(mmdt.results, output = "p-value", coords = c(NA, NA))
+fig.mmdt(mmdt.results, type = "p-value", coords = c(NA, NA))
 }
 \arguments{
 \item{mmdt.results}{an object resulting from the 'mmdt' command.}
 
-\item{output}{type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".}
+\item{type}{type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".}
 
 \item{coords}{a vector of length d [e.g., c(NA, NA, 3.25) for d=3] giving the coordinates at which the plane should be visualized.
 Only necessary for plotting results that include three or more dimensions.
@@ -28,5 +28,5 @@ mmdt.obj = get.mmdt.obj(masks = masks, modal1 = t1s, modal2 = flairs,
                         ids = ids, groups = groups)
 results = mmdt(mmdt.obj)
 
-fig.mmdt(results, output="p-value")}
+fig.mmdt(results, type="p-value")}
 }

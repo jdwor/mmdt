@@ -3,6 +3,7 @@
 export(fig.mmdt)
 export(get.mmdt.obj)
 export(mmdt)
+export(mmdt.to.brain)
 export(summarize.mmdt)
 importFrom(RNifti,readNifti)
 importFrom(ggplot2,aes_string)
