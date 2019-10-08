@@ -3,6 +3,7 @@
 #' @param mmdt.results an object resulting from the 'mmdt' command.
 #'
 #' @importFrom raster clump
+#' @importFrom raster as.matrix
 #' @importFrom igraph graph_from_edgelist
 #' @importFrom igraph clusters
 #' @importFrom stats dist
@@ -24,8 +25,7 @@ summarize.mmdt<-function(mmdt.results){
   if(length(mmdt.results$evaluated.points)<3){
     if(by==T){
       if(sum(mmdt.results$pval.matrix.BY.corrected<.05)>0){
-        clumps=as.matrix(clump(raster(mmdt.results$pval.matrix.BY.corrected<.05),
-                               directions=4))
+        clumps=raster::as.matrix(clump(raster(mmdt.results$pval.matrix.BY.corrected<.05),directions=4))
         tmat=mmdt.results$teststat.matrix
         dims.by=NULL
         signs=NULL
@@ -57,8 +57,7 @@ summarize.mmdt<-function(mmdt.results){
     }
     if(maxt==T){
       if(sum(mmdt.results$pval.matrix.maxt.corrected<.05)>0){
-        clumps=as.matrix(clump(raster(mmdt.results$pval.matrix.maxt.corrected<.05),
-                               directions=4))
+        clumps=raster::as.matrix(clump(raster(mmdt.results$pval.matrix.maxt.corrected<.05),directions=4))
         tmat=mmdt.results$teststat.matrix
         dims.by=NULL
         signs=NULL
@@ -90,8 +89,7 @@ summarize.mmdt<-function(mmdt.results){
     }
     if(tfce==T){
       if(sum(mmdt.results$pval.matrix.tfce.corrected<.05)>0){
-        clumps=as.matrix(clump(raster(mmdt.results$pval.matrix.tfce.corrected<.05),
-                               directions=4))
+        clumps=raster::as.matrix(clump(raster(mmdt.results$pval.matrix.tfce.corrected<.05),directions=4))
         tmat=mmdt.results$teststat.matrix
         dims.by=NULL
         signs=NULL
