@@ -9,24 +9,27 @@ getNullDist=function(method,nsim,mats,group,gridsize,parallel,pb,cores){
       nulldists=pbmclapply(as.list(1:nsim),getNullMat,mats=mats,
                            group=group,gridsize=gridsize,method=method,
                            mc.cores=cores)
-      nulldists=unlist(nulldists)
     }else{
       nulldists=mclapply(as.list(1:nsim),getNullMat,mats=mats,
                          group=group,gridsize=gridsize,method=method,
                          mc.cores=cores)
-      nulldists=unlist(nulldists)
     }
   }else{
     if(pb==TRUE){
       nulldists=pblapply(as.list(1:nsim),getNullMat,mats=mats,
                            group=group,gridsize=gridsize,method=method)
-      nulldists=unlist(nulldists)
     }else{
       nulldists=lapply(as.list(1:nsim),getNullMat,mats=mats,
                        group=group,gridsize=gridsize,method=method)
-      nulldists=unlist(nulldists)
     }
   }
 
+  if(method=="maxt" | method=="tfce"){
+    nulldists=unlist(nulldists)
+  }else if(method=="both"){
+    nulldists=do.call(rbind,nulldists)
+  }else{
+    stop("method must be either 'maxt', 'tfce', or 'both'")
+  }
   return(nulldists)
 }

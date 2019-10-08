@@ -25,10 +25,19 @@ getNullMat=function(x,mats,group,gridsize,method){
 
   if(method=="maxt"){
     maxval=max(abs(ts))
+    return(maxval)
   }else if(method=="tfce"){
+    ts=array(ts,dim=gridsize)
     tf=getTFCE(ts,parallel=F)
     maxval=max(tf)
+    return(maxval)
+  }else if(method=="both"){
+    maxval.maxt=max(abs(ts))
+    ts=array(ts,dim=gridsize)
+    tf=getTFCE(ts,parallel=F)
+    maxval.tfce=max(tf)
+    return(c(maxval.maxt,maxval.tfce))
+  }else{
+    stop("method must be either 'maxt', 'tfce', or 'both'")
   }
-
-  return(maxval)
 }
