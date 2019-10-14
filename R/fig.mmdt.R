@@ -67,9 +67,9 @@ fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
         scale_fill_manual(values=c("-1"="#B2182B",
                                    "0"="#FFFFFF",
                                    "1"="#2166AC"),
-                          labels=c("-1"=paste0("More voxels\nin group ",groups[2]),
+                          labels=c("-1"=paste0("Higher density\nin group ",groups[2]),
                                    "0"="No significant\ndifference",
-                                   "1"=paste0("More voxels\nin group ",groups[1]))) +
+                                   "1"=paste0("Higher density\nin group ",groups[1]))) +
         theme_bw() + xlab("Modality 1") + ylab("Modality 2") +
         theme(legend.position="right",
               panel.grid.major = element_blank(),
@@ -127,9 +127,9 @@ fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
         scale_fill_manual(values=c("-1"="#B2182B",
                                    "0"="#FFFFFF",
                                    "1"="#2166AC"),
-                          labels=c("-1"=paste0("More voxels\nin group ",groups[2]),
+                          labels=c("-1"=paste0("Higher density\nin group ",groups[2]),
                                    "0"="No significant\ndifference",
-                                   "1"=paste0("More voxels\nin group ",groups[1]))) +
+                                   "1"=paste0("Higher density\nin group ",groups[1]))) +
         theme_bw() + xlab(paste0("Modality ",wmods[1])) +
         ylab(paste0("Modality ",wmods[2])) +
         theme(legend.position="right",
