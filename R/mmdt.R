@@ -11,9 +11,9 @@
 #' If NULL, this value defaults to 151x151 for two modalities, 51x51x51 for three, and 21x21x21x21 for four.
 #' Must be specified manually when analyzing 4-6 modalities.
 #' @param H is the bandwidth matrix used for kernel density estimation. If NULL, a plug-in bandwidth estimator is used.
-#' @param mc.adjust is a string defining the method(s) of multiple comparisons to use.
+#' @param mc.adjust is a character vector defining the multiple comparison adjustments to use.
 #' Default is "BH", which controls FDR using the Benjamini-Hochberg procedure.
-#' The additional options are: "BH", which controls FDR using the Benjamini-Yekutieli procedure,
+#' The additional options are: "BY", which controls FDR using the Benjamini-Yekutieli procedure,
 #' "maxt", which controls FWER using max-t correction,
 #' and "tfce", which controls FWER using threshold-free cluster enhancement.
 #' Both of the latter options use permutation to determine significance.

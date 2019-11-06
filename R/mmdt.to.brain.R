@@ -1,7 +1,7 @@
 #' @title Visualize MMDT Results in a Subject's Brain Space
-#' @description This function creates an mmdt object from lists of \code{nifti} filenames.
+#' @description This function maps mmdt results back onto subjects' brain image domains for visualization and exploration purposes.
 #' @param mmdt.results an object resulting from the 'mmdt' command.
-#' @param type type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".
+#' @param type type of image to be produced. Can be "t-statistic" or "significance". Default is "significance".
 #' @param mask a string that gives a .nii or .nii.gz filename for the subject's mask.
 #' Mask will demarcate which voxels will be included, should be coded by TRUE/FALSE or 1/0,
 #' and should be the same as the masks used to conduct the mmdt analyses.
@@ -16,7 +16,7 @@
 #'
 #' @importFrom RNifti readNifti
 #' @return A nifti image in a subject's brain space, in which voxel intensities represent
-#' either the t-statistic or p-value of the group difference test at the given
+#' either the t-statistic or significance of the group difference test at the given
 #' voxels' locations within the density space. Importantly, statistics are not to be
 #' interpreted in the brain space; these values are only for visualization of where specific
 #' voxel intensity profiles fall within subjects' images.
@@ -34,11 +34,11 @@
 #' tstat.mask.s1 = mmdt.to.brain(mmdt.results, type = "t-statistic",
 #'                               mask = "mask01.nii", modal1 = "t101.nii",
 #'                               modal2 = "flair01.nii")
-#' pval.mask.s1 = mmdt.to.brain(mmdt.results, type = "p-value",
-#'                              mask = "mask01.nii", modal1 = "t101.nii",
-#'                              modal2 = "flair01.nii")
+#' sig.mask.s1 = mmdt.to.brain(mmdt.results, type = "significance",
+#'                             mask = "mask01.nii", modal1 = "t101.nii",
+#'                             modal2 = "flair01.nii")
 #' writeNifti(tstat.mask.s1, file="mmdt.tstat.01.nii.gz")
-#' writeNifti(pval.mask.s1, file="mmdt.pval.01.nii.gz")}
+#' writeNifti(sig.mask.s1, file="mmdt.sig.01.nii.gz")}
 #' @export
 
 mmdt.to.brain<-function(mmdt.results,type="t-statistic",mask,modal1,modal2,
@@ -67,7 +67,7 @@ mmdt.to.brain<-function(mmdt.results,type="t-statistic",mask,modal1,modal2,
 
   if(type=="t-statistic"){
     grid=mmdt.results$teststat.matrix
-  }else if(type=="p-value"){
+  }else if(type=="significance"){
     if(by==T){
       grid=mmdt.results$pval.matrix.BY.corrected
       grid[mmdt.results$pval.matrix.BY.corrected>.05]=0

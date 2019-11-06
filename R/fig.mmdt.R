@@ -1,8 +1,8 @@
 #' @title Plot Results of Multi-Modal Density Test
-#' @description This function creates a summary of the mmdt output.
+#' @description This function creates figures visualizing the results of the mmdt analysis.
 #' @param mmdt.results an object resulting from the 'mmdt' command.
-#' @param type type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".
-#' @param mc.adjust if type="p-value", this states which adjustment method to use for visualization.
+#' @param type type of image to be produced. Can be "t-statistic" or "significance". Default is "significance".
+#' @param mc.adjust if type="significance", this states which adjustment method to use for visualization.
 #' @param coords a vector of length d [e.g., c(NA, NA, 3.25) for d=3] giving the coordinates at which the plane should be visualized.
 #' Only necessary for plotting results that include three or more dimensions.
 #' Entries should be "NA" for the two modalities to be plotted, and other entries should give the
@@ -27,10 +27,10 @@
 #'                         ids = ids, groups = groups)
 #' results = mmdt(mmdt.obj)
 #'
-#' fig.mmdt(results, type="p-value")}
+#' fig.mmdt(results, type="significance")}
 #' @export
 
-fig.mmdt<-function(mmdt.results, type="p-value", mc.adjust="BH", coords=c(NA,NA)){
+fig.mmdt<-function(mmdt.results, type="significance", mc.adjust="BH", coords=c(NA,NA)){
   bh="pval.matrix.BH.corrected"%in%names(mmdt.results)
   by="pval.matrix.BY.corrected"%in%names(mmdt.results)
   maxt="pval.matrix.maxt.corrected"%in%names(mmdt.results)
@@ -45,7 +45,7 @@ fig.mmdt<-function(mmdt.results, type="p-value", mc.adjust="BH", coords=c(NA,NA)
     stop("'mc.adjust' must give a method that was used in the 'mmdt.results' object")
   }
 
-  if(type=="p-value"){
+  if(type=="significance"){
     if(length(evals)<3){
       if(mc.adjust=="BH"){
         mat=getFigureMat(mmdt.results$pval.matrix.BH.corrected,
