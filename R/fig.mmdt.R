@@ -2,6 +2,7 @@
 #' @description This function creates a summary of the mmdt output.
 #' @param mmdt.results an object resulting from the 'mmdt' command.
 #' @param type type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".
+#' @param mc.adjust if type="p-value", this states which adjustment method to use for visualization.
 #' @param coords a vector of length d [e.g., c(NA, NA, 3.25) for d=3] giving the coordinates at which the plane should be visualized.
 #' Only necessary for plotting results that include three or more dimensions.
 #' Entries should be "NA" for the two modalities to be plotted, and other entries should give the
@@ -29,35 +30,38 @@
 #' fig.mmdt(results, type="p-value")}
 #' @export
 
-fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
+fig.mmdt<-function(mmdt.results, type="p-value", mc.adjust="BH", coords=c(NA,NA)){
+  bh="pval.matrix.BH.corrected"%in%names(mmdt.results)
   by="pval.matrix.BY.corrected"%in%names(mmdt.results)
   maxt="pval.matrix.maxt.corrected"%in%names(mmdt.results)
   tfce="pval.matrix.tfce.corrected"%in%names(mmdt.results)
   groups=strsplit(mmdt.results$group.diff," minus ")[[1]]
   evals=mmdt.results$evaluated.points
 
+  if(!(mc.adjust%in%c("BH","BY","maxt","tfce"))){
+    stop("'mc.adjust' must be either 'BH', 'BY', 'maxt', or 'tfce'")
+  }else if((mc.adjust=="BH" & bh==F) | (mc.adjust=="BY" & by==F) |
+           (mc.adjust=="maxt" & maxt==F) | (mc.adjust=="tfce" & tfce==F)){
+    stop("'mc.adjust' must give a method that was used in the 'mmdt.results' object")
+  }
+
   if(type=="p-value"){
     if(length(evals)<3){
-      if(by==T){
-        mat=mmdt.results$pval.matrix.BY.corrected
-        mat[mmdt.results$pval.matrix.BY.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.BY.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.BY.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+      if(mc.adjust=="BH"){
+        mat=getFigureMat(mmdt.results$pval.matrix.BH.corrected,
+                         mmdt.results$teststat.matrix)
+        thistitle="Differences in group densities\nafter BH correction"
+      }else if(mc.adjust=="BY"){
+        mat=getFigureMat(mmdt.results$pval.matrix.BY.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter BY correction"
       }else if(maxt==T){
-        mat=mmdt.results$pval.matrix.maxt.corrected
-        mat[mmdt.results$pval.matrix.maxt.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.maxt.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.maxt.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+        mat=getFigureMat(mmdt.results$pval.matrix.maxt.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter max-t correction"
       }else{
-        mat=mmdt.results$pval.matrix.tfce.corrected
-        mat[mmdt.results$pval.matrix.tfce.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.tfce.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.tfce.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+        mat=getFigureMat(mmdt.results$pval.matrix.tfce.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter TFCE correction"
       }
       df=expand.grid(x=evals[[1]],y=evals[[2]])
@@ -84,26 +88,21 @@ fig.mmdt<-function(mmdt.results, type="p-value", coords=c(NA,NA)){
         For example: c(NA, NA, 2.0, 1.5) will plot the results over all values of
         modalities 1 and 2, for points at which modalitiy 3 = 2.0 and modality 4 = 1.5")
       }
-      if(by==T){
-        mat=mmdt.results$pval.matrix.BY.corrected
-        mat[mmdt.results$pval.matrix.BY.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.BY.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.BY.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+      if(mc.adjust=="BH"){
+        mat=getFigureMat(mmdt.results$pval.matrix.BH.corrected,
+                         mmdt.results$teststat.matrix)
+        thistitle="Differences in group densities\nafter BH correction"
+      }else if(mc.adjust=="BY"){
+        mat=getFigureMat(mmdt.results$pval.matrix.BY.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter BY correction"
       }else if(maxt==T){
-        mat=mmdt.results$pval.matrix.maxt.corrected
-        mat[mmdt.results$pval.matrix.maxt.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.maxt.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.maxt.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+        mat=getFigureMat(mmdt.results$pval.matrix.maxt.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter max-t correction"
       }else{
-        mat=mmdt.results$pval.matrix.tfce.corrected
-        mat[mmdt.results$pval.matrix.tfce.corrected>.05]=0
-        mat[mmdt.results$pval.matrix.tfce.corrected<.05 & mmdt.results$teststat.matrix>0]=1
-        mat[mmdt.results$pval.matrix.tfce.corrected<.05 & mmdt.results$teststat.matrix<0]=-1
-        mat[!(mat%in%c(1,-1))]=0
+        mat=getFigureMat(mmdt.results$pval.matrix.tfce.corrected,
+                         mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter TFCE correction"
       }
       wmods=which(is.na(coords))

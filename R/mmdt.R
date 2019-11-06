@@ -12,9 +12,10 @@
 #' Must be specified manually when analyzing 4-6 modalities.
 #' @param H is the bandwidth matrix used for kernel density estimation. If NULL, a plug-in bandwidth estimator is used.
 #' @param mc.adjust is a string defining the method(s) of multiple comparisons to use.
-#' Default is "BY", which controls FDR using the Benjamini-Yekutieli procedure.
-#' The additional options are: "maxt", which controls global FWER using max-t correction,
-#' and "tfce", which controls global FWER using threshold-free cluster enhancement.
+#' Default is "BH", which controls FDR using the Benjamini-Hochberg procedure.
+#' The additional options are: "BH", which controls FDR using the Benjamini-Yekutieli procedure,
+#' "maxt", which controls FWER using max-t correction,
+#' and "tfce", which controls FWER using threshold-free cluster enhancement.
 #' Both of the latter options use permutation to determine significance.
 #' @param nperm is an integer value that gives the number of permutations desired.
 #' @param parallel is a logical value that indicates whether the user's computer
@@ -40,18 +41,18 @@
 #' @export
 
 mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
-               gridsize=NULL,H=NULL,mc.adjust="BY",
+               gridsize=NULL,H=NULL,mc.adjust="BH",
                nperm=500,parallel=TRUE,cores=2,pb=TRUE){
 
   ids=mmdt.obj$ids
   groups=mmdt.obj$groups
   data=mmdt.obj$modals
 
-  if(!("BY"%in%mc.adjust | "maxt"%in%mc.adjust | "tfce"%in%mc.adjust)){
-    stop("'mc.adjust' must contain either 'BY', 'maxt', or 'tfce'")
+  if(!("BH"%in%mc.adjust | "BY"%in%mc.adjust | "maxt"%in%mc.adjust | "tfce"%in%mc.adjust)){
+    stop("'mc.adjust' must contain either 'BH', 'BY', 'maxt', or 'tfce'")
   }
 
-  if(ncol(data)>2 & mc.adjust=="tfce"){
+  if(ncol(data)>2 & identical(mc.adjust,"tfce")){
     stop("TFCE is not supported for >2 modalities. Please use 'BY' or 'maxt'")
   }else if(ncol(data)>2 & "tfce"%in%mc.adjust){
     cat("TFCE is not supported for >2 modalities.\n")
@@ -91,11 +92,23 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
 
   cat("Getting corrected p-values\n")
 
+  output=list(subject.densities=mats,
+              teststat.matrix=tmat,
+              pval.matrix.uncorrected=pmat.ttest)
+
   if("BY"%in%mc.adjust){
     pmat.by=pmat.ttest
     pvals=pmat.by[!is.na(pmat.by)]
     pvals=p.adjust(pvals,method="BY")
     pmat.by[!is.na(pmat.by)]=pvals
+    output[["pval.matrix.BY.corrected"]]=pmat.by
+  }
+  if("BH"%in%mc.adjust){
+    pmat.bh=pmat.ttest
+    pvals=pmat.bh[!is.na(pmat.bh)]
+    pvals=p.adjust(pvals,method="BH")
+    pmat.bh[!is.na(pmat.bh)]=pvals
+    output[["pval.matrix.BH.corrected"]]=pmat.bh
   }
   if("maxt"%in%mc.adjust & "tfce"%in%mc.adjust){
     nullmats=getNullDist(method="both",nperm,mats,group,
@@ -105,11 +118,13 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
     pvals=tmat[!is.na(tmat)]
     pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats[,1])))
     pmat.maxt[!is.na(tmat)]<-pvals
+    output[["pval.matrix.maxt.corrected"]]=pmat.maxt
 
     pmat.tfce=getTFCE(tmat,parallel=parallel,cores=cores)
     pvals=pmat.tfce[!is.na(pmat.tfce)]
     pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats[,2])))
     pmat.tfce[!is.na(pmat.tfce)]<-pvals
+    output[["pval.matrix.tfce.corrected"]]=pmat.tfce
   }else if("maxt"%in%mc.adjust & !("tfce"%in%mc.adjust)){
     nullmats=getNullDist(method="maxt",nperm,mats,group,
                          gridsize,parallel,pb,cores)
@@ -117,6 +132,7 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
     pvals=tmat[!is.na(tmat)]
     pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats)))
     pmat.maxt[!is.na(tmat)]<-pvals
+    output[["pval.matrix.maxt.corrected"]]=pmat.maxt
   }else if(!("maxt"%in%mc.adjust) & "tfce"%in%mc.adjust){
     nullmats=getNullDist(method="tfce",nperm,mats,group,
                          gridsize,parallel,pb,cores)
@@ -124,70 +140,12 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
     pvals=pmat.tfce[!is.na(pmat.tfce)]
     pvals=as.vector(unlist(lapply(pvals,getPermSig,vec=nullmats)))
     pmat.tfce[!is.na(pmat.tfce)]<-pvals
-  }
-  if(!("BY"%in%mc.adjust | "maxt"%in%mc.adjust | "tfce"%in%mc.adjust)){
-    print("mc.adjust must include 'BY', 'maxt', or 'tfce'. Defaulting to BY")
-    pmat.by=tmat
-    pvals=pmat.by[!is.na(pmat.by)]
-    pvals=p.adjust(pvals,method="BY")
-    pmat.by[!is.na(pmat.by)]=pvals
+    output[["pval.matrix.tfce.corrected"]]=pmat.tfce
   }
 
-  if("BY"%in%mc.adjust & "maxt"%in%mc.adjust & "tfce"%in%mc.adjust){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.BY.corrected=pmat.by,
-                pval.matrix.maxt.corrected=pmat.maxt,
-                pval.matrix.tfce.corrected=pmat.tfce,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if(identical(mc.adjust,"BY")){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.BY.corrected=pmat.by,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if(identical(mc.adjust,"maxt")){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.maxt.corrected=pmat.maxt,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if(identical(mc.adjust,"tfce")){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.tfce.corrected=pmat.tfce,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if("BY"%in%mc.adjust & "maxt"%in%mc.adjust & !("tfce"%in%mc.adjust)){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.BY.corrected=pmat.by,
-                pval.matrix.maxt.corrected=pmat.maxt,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if("BY"%in%mc.adjust & !("maxt"%in%mc.adjust) & "tfce"%in%mc.adjust){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.BY.corrected=pmat.by,
-                pval.matrix.tfce.corrected=pmat.tfce,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }else if(!("BY"%in%mc.adjust) & "maxt"%in%mc.adjust & "tfce"%in%mc.adjust){
-    return(list(subject.densities=mats,
-                teststat.matrix=tmat,
-                pval.matrix.uncorrected=pmat.ttest,
-                pval.matrix.maxt.corrected=pmat.maxt,
-                pval.matrix.tfce.corrected=pmat.tfce,
-                evaluated.points=eval.points,
-                group.diff=g.diff))
-  }
+  output[["evaluated.points"]]=eval.points
+  output[["group.diff"]]=g.diff
+  return(output)
 }
 
 
