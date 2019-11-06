@@ -4,15 +4,15 @@
 \alias{fig.mmdt}
 \title{Plot Results of Multi-Modal Density Test}
 \usage{
-fig.mmdt(mmdt.results, type = "p-value", mc.adjust = "BH",
+fig.mmdt(mmdt.results, type = "significance", mc.adjust = "BH",
   coords = c(NA, NA))
 }
 \arguments{
 \item{mmdt.results}{an object resulting from the 'mmdt' command.}
 
-\item{type}{type of image to be produced. Can be "t-statistic" or "p-value". Default is "p-value".}
+\item{type}{type of image to be produced. Can be "t-statistic" or "significance". Default is "significance".}
 
-\item{mc.adjust}{if type="p-value", this states which adjustment method to use for visualization.}
+\item{mc.adjust}{if type="significance", this states which adjustment method to use for visualization.}
 
 \item{coords}{a vector of length d [e.g., c(NA, NA, 3.25) for d=3] giving the coordinates at which the plane should be visualized.
 Only necessary for plotting results that include three or more dimensions.
@@ -23,7 +23,7 @@ value along the other dimensions at which the results should be plotted.}
 A raster image showing either the full t-statistic map or a map of regions at which significant differences were detected.
 }
 \description{
-This function creates a summary of the mmdt output.
+This function creates figures visualizing the results of the mmdt analysis.
 }
 \examples{
 \dontrun{
@@ -31,5 +31,5 @@ mmdt.obj = get.mmdt.obj(masks = masks, modal1 = t1s, modal2 = flairs,
                         ids = ids, groups = groups)
 results = mmdt(mmdt.obj)
 
-fig.mmdt(results, type="p-value")}
+fig.mmdt(results, type="significance")}
 }

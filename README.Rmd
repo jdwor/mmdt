@@ -111,4 +111,58 @@ _Arguments_
 
 ## Vignette
 
+The following gives a simple example of how the functions provided in this package should be used to conduct and summarize the multi-modal density test.
 
+First, an data object should be created using the `mmdt.obj` function. In this example, we have four subjects, with IDs from 1 to 4. The first two subjects are in group 1, and the last two subjects are in group 2. We can create the mmdt.obj object as follows:
+
+```{r, eval = FALSE}
+masks = c("mask01.nii", "mask02.nii", "mask03.nii", "mask04.nii")
+t1s = c("t101.nii", "t102.nii", "t103.nii", "t104.nii")
+flairs = c("flair01.nii", "flair02.nii", "flair03.nii", "flair04.nii")
+ids = c(1, 2, 3, 4)
+groups = c(1, 1, 2, 2)
+
+mmdt.obj = get.mmdt.obj(masks = masks, modal1 = t1s, modal2 = flairs,
+                        ids = ids, groups = groups)
+```
+
+Once we have the mmdt.obj object, we can carry out the analysis using the `mmdt` function. Here, we will use the defaults for several values, and will therefore not enter them in the function call. We will use the defaults for 1) `mins` and `maxs`, which will perform the test over the full space of voxel intensity values, 2) `gridsize`, which uses the a 151x151 grid for two modalities, and 3) the KDE bandwidth `H`, which uses a plug-in estimator for each subject.
+
+For the values that we will enter manually, we will correct for multiple comparisons using both Benjamini-Hochberg (for FDR control), and max-t correction with 500 permutations (for FWER control). We will also run the function in parallel, on four cores, with a progress bar.
+
+```{r, eval = FALSE}
+mmdt.results = mmdt(mmdt.obj, mc.adjust = c("BH", "maxt"), nperm = 500, 
+                    parallel = TRUE, cores = 4, pb = TRUE)
+```
+
+Once we have the 'mmdt.results' object in hand, we can summarize the results using the `summarize.mmdt` function. Here, we simply call the function with the 'mmdt.results' object, and it prints our results to the console.
+
+```{r, eval = FALSE}
+summarize.mmdt(mmdt.results)
+```
+
+We can then create vizualization of these results using the `fig.mmdt` function. We will first visualize the t-statistic map, and then the significance map with Benjamini-Hochberg correction. Since we only used two modalities (T1 and FLAIR), we do not need to enter anything for the 'coords' parameter.
+
+```{r, eval = FALSE}
+tfig = fig.mmdt(results, type = "t-statistic")
+tfig
+
+sfig = fig.mmdt(results, type = "significance", mc.adjust = "BH")
+sfig
+```
+
+Finally, if we want to manually check where the relevant voxel intensity profiles tend to be located in the brain, we can use the `mmdt.to.brain` function to map the t-statistics or significance values back onto the subjects' brain masks used to run the analysis. We would do this one at a time for each subject, and the example below shows how we would do this for Subject 1. First, we will create a nifti image in which voxels are assigned the t-statistic of their location in the density space, and then we will create a nifti image in which voxels are labeled if they are located at a region of the density space in which there was a significant group difference.
+
+```{r, eval = FALSE}
+tstat.mask.s1 = mmdt.to.brain(mmdt.results, type = "t-statistic",
+                              mask = "mask01.nii", modal1 = "t101.nii",
+                              modal2 = "flair01.nii")
+writeNifti(tstat.mask.s1, file="mmdt.tstat.01.nii.gz")
+
+sig.mask.s1 = mmdt.to.brain(mmdt.results, type = "significance",
+                            mask = "mask01.nii", modal1 = "t101.nii",
+                            modal2 = "flair01.nii")
+writeNifti(sig.mask.s1, file="mmdt.sig.01.nii.gz")
+```
+
+There you have it! Feel free to reach out to jdwor[at]pennmedicine[dot]upenn[dot]edu if you have any questions about the package. This page will be updated with more information when the MMDT paper is published and publicly available.
