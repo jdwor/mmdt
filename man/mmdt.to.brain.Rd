@@ -4,13 +4,16 @@
 \alias{mmdt.to.brain}
 \title{Visualize MMDT Results in a Subject's Brain Space}
 \usage{
-mmdt.to.brain(mmdt.results, type = "t-statistic", mask, modal1, modal2,
-  modal3 = NULL, modal4 = NULL, modal5 = NULL, modal6 = NULL)
+mmdt.to.brain(mmdt.results, type = "t-statistic", mc.adjust = "BH",
+  mask, modal1, modal2, modal3 = NULL, modal4 = NULL, modal5 = NULL,
+  modal6 = NULL)
 }
 \arguments{
 \item{mmdt.results}{an object resulting from the 'mmdt' command.}
 
 \item{type}{type of image to be produced. Can be "t-statistic" or "significance". Default is "significance".}
+
+\item{mc.adjust}{if type="significance", this states which adjustment method to use to determine significance.}
 
 \item{mask}{a string that gives a .nii or .nii.gz filename for the subject's mask.
 Mask will demarcate which voxels will be included, should be coded by TRUE/FALSE or 1/0,

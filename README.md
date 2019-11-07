@@ -150,8 +150,8 @@ This function maps mmdt results back onto subjects’ brain image domains
 for visualization and exploration purposes.
 
 ``` r
-mmdt.to.brain(mmdt.results, type="t-statistic", mask, 
-              modal1, modal2, modal3=NULL, modal4=NULL,
+mmdt.to.brain(mmdt.results, type="t-statistic", mc.adjust="BH",
+              mask, modal1, modal2, modal3=NULL, modal4=NULL,
               modal5=NULL, modal6=NULL)
 ```
 
@@ -160,6 +160,8 @@ mmdt.to.brain(mmdt.results, type="t-statistic", mask,
   - `mmdt.results` An object resulting from the ‘mmdt’ command.
   - `type` Type of image to be produced. Can be “t-statistic” or
     “significance”. Default is “significance”.
+  - `mc.adjust` If type=“significance”, this states which adjustment
+    method to use to determine significance.
   - `mask` A string that gives a .nii or .nii.gz filename for the given
     subject’s mask. Masks will demarcate which voxels will be included,
     should be coded by TRUE/FALSE or 1/0, and should be the same as the
