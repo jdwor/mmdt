@@ -38,14 +38,13 @@ fig.mmdt<-function(mmdt.results, type="significance", mc.adjust="BH", coords=c(N
   groups=strsplit(mmdt.results$group.diff," minus ")[[1]]
   evals=mmdt.results$evaluated.points
 
-  if(!(mc.adjust%in%c("BH","BY","maxt","tfce"))){
-    stop("'mc.adjust' must be either 'BH', 'BY', 'maxt', or 'tfce'")
-  }else if((mc.adjust=="BH" & bh==F) | (mc.adjust=="BY" & by==F) |
-           (mc.adjust=="maxt" & maxt==F) | (mc.adjust=="tfce" & tfce==F)){
-    stop("'mc.adjust' must give a method that was used in the 'mmdt.results' object")
-  }
-
   if(type=="significance"){
+    if(!(mc.adjust%in%c("BH","BY","maxt","tfce"))){
+      stop("'mc.adjust' must be either 'BH', 'BY', 'maxt', or 'tfce'")
+    }else if((mc.adjust=="BH" & bh==F) | (mc.adjust=="BY" & by==F) |
+             (mc.adjust=="maxt" & maxt==F) | (mc.adjust=="tfce" & tfce==F)){
+      stop("'mc.adjust' must give a method that was used in the 'mmdt.results' object")
+    }
     if(length(evals)<3){
       if(mc.adjust=="BH"){
         mat=getFigureMat(mmdt.results$pval.matrix.BH.corrected,
@@ -55,7 +54,7 @@ fig.mmdt<-function(mmdt.results, type="significance", mc.adjust="BH", coords=c(N
         mat=getFigureMat(mmdt.results$pval.matrix.BY.corrected,
                          mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter BY correction"
-      }else if(maxt==T){
+      }else if(mc.adjust=="maxt"){
         mat=getFigureMat(mmdt.results$pval.matrix.maxt.corrected,
                          mmdt.results$teststat.matrix)
         thistitle="Differences in group densities\nafter max-t correction"

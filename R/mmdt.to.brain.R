@@ -2,6 +2,7 @@
 #' @description This function maps mmdt results back onto subjects' brain image domains for visualization and exploration purposes.
 #' @param mmdt.results an object resulting from the 'mmdt' command.
 #' @param type type of image to be produced. Can be "t-statistic" or "significance". Default is "significance".
+#' @param mc.adjust if type="significance", this states which adjustment method to use to determine significance.
 #' @param mask a string that gives a .nii or .nii.gz filename for the subject's mask.
 #' Mask will demarcate which voxels will be included, should be coded by TRUE/FALSE or 1/0,
 #' and should be the same as the masks used to conduct the mmdt analyses.
@@ -41,9 +42,11 @@
 #' writeNifti(sig.mask.s1, file="mmdt.sig.01.nii.gz")}
 #' @export
 
-mmdt.to.brain<-function(mmdt.results,type="t-statistic",mask,modal1,modal2,
-                        modal3=NULL,modal4=NULL,modal5=NULL,modal6=NULL){
+mmdt.to.brain<-function(mmdt.results,type="t-statistic",mc.adjust="BH",
+                        mask,modal1,modal2,modal3=NULL,modal4=NULL,
+                        modal5=NULL,modal6=NULL){
 
+  bh="pval.matrix.BH.corrected"%in%names(mmdt.results)
   by="pval.matrix.BY.corrected"%in%names(mmdt.results)
   maxt="pval.matrix.maxt.corrected"%in%names(mmdt.results)
   tfce="pval.matrix.tfce.corrected"%in%names(mmdt.results)
@@ -68,30 +71,24 @@ mmdt.to.brain<-function(mmdt.results,type="t-statistic",mask,modal1,modal2,
   if(type=="t-statistic"){
     grid=mmdt.results$teststat.matrix
   }else if(type=="significance"){
-    if(by==T){
-      grid=mmdt.results$pval.matrix.BY.corrected
-      grid[mmdt.results$pval.matrix.BY.corrected>.05]=0
-      grid[mmdt.results$pval.matrix.BY.corrected<.05 &
-            mmdt.results$teststat.matrix>0]=1
-      grid[mmdt.results$pval.matrix.BY.corrected<.05 &
-            mmdt.results$teststat.matrix<0]=-1
-      grid[!(grid%in%c(1,-1))]=0
-    }else if(maxt==T){
-      grid=mmdt.results$pval.matrix.maxt.corrected
-      grid[mmdt.results$pval.matrix.maxt.corrected>.05]=0
-      grid[mmdt.results$pval.matrix.maxt.corrected<.05 &
-            mmdt.results$teststat.matrix>0]=1
-      grid[mmdt.results$pval.matrix.maxt.corrected<.05 &
-            mmdt.results$teststat.matrix<0]=-1
-      grid[!(grid%in%c(1,-1))]=0
+    if(!(mc.adjust%in%c("BH","BY","maxt","tfce"))){
+      stop("'mc.adjust' must be either 'BH', 'BY', 'maxt', or 'tfce'")
+    }else if((mc.adjust=="BH" & bh==F) | (mc.adjust=="BY" & by==F) |
+             (mc.adjust=="maxt" & maxt==F) | (mc.adjust=="tfce" & tfce==F)){
+      stop("'mc.adjust' must give a method that was used in the 'mmdt.results' object")
+    }
+    if(mc.adjust=="BH"){
+      grid=getFigureMat(mmdt.results$pval.matrix.BH.corrected,
+                        mmdt.results$teststat.matrix)
+    }else if(mc.adjust=="BY"){
+      grid=getFigureMat(mmdt.results$pval.matrix.BY.corrected,
+                        mmdt.results$teststat.matrix)
+    }else if(mc.adjust=="maxt"){
+      grid=getFigureMat(mmdt.results$pval.matrix.maxt.corrected,
+                        mmdt.results$teststat.matrix)
     }else{
-      grid=mmdt.results$pval.matrix.tfce.corrected
-      grid[mmdt.results$pval.matrix.tfce.corrected>.05]=0
-      grid[mmdt.results$pval.matrix.tfce.corrected<.05 &
-            mmdt.results$teststat.matrix>0]=1
-      grid[mmdt.results$pval.matrix.tfce.corrected<.05 &
-            mmdt.results$teststat.matrix<0]=-1
-      grid[!(grid%in%c(1,-1))]=0
+      grid=getFigureMat(mmdt.results$pval.matrix.tfce.corrected,
+                        mmdt.results$teststat.matrix)
     }
   }
   vals=lapply(1:nrow(mat),matchVox,mat=mat,
