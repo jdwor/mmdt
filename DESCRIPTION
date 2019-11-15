@@ -10,4 +10,4 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: stats, pbmcapply, pbapply, parallel, ks, RNifti, raster, igraph, mvtnorm, ggplot2, MASS
+Imports: stats, pbmcapply, pbapply, parallel, ks, RNifti, raster, igraph, ggplot2
