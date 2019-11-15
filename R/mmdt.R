@@ -94,19 +94,19 @@ mmdt<-function(mmdt.obj,mins=NULL,maxs=NULL,
               teststat.matrix=tmat,
               pval.matrix.uncorrected=pmat.ttest)
 
-  if("BY"%in%mc.adjust){
-    pmat.by=pmat.ttest
-    pvals=pmat.by[!is.na(pmat.by)]
-    pvals=p.adjust(pvals,method="BY")
-    pmat.by[!is.na(pmat.by)]=pvals
-    output[["pval.matrix.BY.corrected"]]=pmat.by
-  }
   if("BH"%in%mc.adjust){
     pmat.bh=pmat.ttest
     pvals=pmat.bh[!is.na(pmat.bh)]
     pvals=p.adjust(pvals,method="BH")
     pmat.bh[!is.na(pmat.bh)]=pvals
     output[["pval.matrix.BH.corrected"]]=pmat.bh
+  }
+  if("BY"%in%mc.adjust){
+    pmat.by=pmat.ttest
+    pvals=pmat.by[!is.na(pmat.by)]
+    pvals=p.adjust(pvals,method="BY")
+    pmat.by[!is.na(pmat.by)]=pvals
+    output[["pval.matrix.BY.corrected"]]=pmat.by
   }
   if("maxt"%in%mc.adjust & "tfce"%in%mc.adjust){
     nullmats=getNullDist(method="both",nperm,mats,group,
