@@ -17,12 +17,45 @@
 #' @export
 
 summarize.mmdt<-function(mmdt.results){
+  bh="pval.matrix.BH.corrected"%in%names(mmdt.results)
   by="pval.matrix.BY.corrected"%in%names(mmdt.results)
   maxt="pval.matrix.maxt.corrected"%in%names(mmdt.results)
   tfce="pval.matrix.tfce.corrected"%in%names(mmdt.results)
   groups=strsplit(mmdt.results$group.diff," minus ")[[1]]
 
   if(length(mmdt.results$evaluated.points)<3){
+    if(bh==T){
+      if(sum(mmdt.results$pval.matrix.BH.corrected<.05)>0){
+        clumps=raster::as.matrix(clump(raster(mmdt.results$pval.matrix.BH.corrected<.05),directions=4))
+        tmat=mmdt.results$teststat.matrix
+        dims.by=NULL
+        signs=NULL
+        ctab=sort(table(clumps),decreasing=T)
+        ctab=ctab[ctab>1]
+        for(i in as.numeric(names(ctab))){
+          tdim=which(clumps==i,arr.ind=T)
+          tvals=tmat[tdim]
+          maxdim=which.max(abs(tvals))
+          tdim=tdim[maxdim,]
+          maxval=tvals[maxdim]
+          tcoords=rep(NA,length(tdim))
+          for(j in 1:length(tdim)){
+            tcoords[j]=mmdt.results$evaluated.points[[j]][tdim[j]]
+          }
+          signs=c(signs,ifelse(maxval>0,"more","fewer"))
+          dims.by=rbind(dims.by,tcoords)
+        }
+        cat("After BH correction, there are significant differences in subjects' densities by group.\n")
+        cat("Specifically, relative to group ",groups[2],", group ",groups[1]," appears to have:\n",sep="")
+        for(i in 1:nrow(dims.by)){
+          cat("   - ",signs[i]," voxels near {",paste(round(dims.by[i,],3),collapse=", "),"}\n",sep="")
+        }
+        cat("\n")
+      }else{
+        cat("After BH correction, there are no significant differences in subjects' densities by group.\n")
+        cat("\n")
+      }
+    }
     if(by==T){
       if(sum(mmdt.results$pval.matrix.BY.corrected<.05)>0){
         clumps=raster::as.matrix(clump(raster(mmdt.results$pval.matrix.BY.corrected<.05),directions=4))
