@@ -38,6 +38,10 @@ fig.mmdt<-function(mmdt.results, type="significance", mc.adjust="BH", coords=c(N
   groups=strsplit(mmdt.results$group.diff," minus ")[[1]]
   evals=mmdt.results$evaluated.points
 
+  if(!type%in%c("significance","t-statistic")){
+    stop("'type' must be either 'significance' or 't-statistic'")
+  }
+
   if(type=="significance"){
     if(!(mc.adjust%in%c("BH","BY","maxt","tfce"))){
       stop("'mc.adjust' must be either 'BH', 'BY', 'maxt', or 'tfce'")

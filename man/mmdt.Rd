@@ -56,9 +56,7 @@ This function runs the multi-modal density test (mmdt) using an mmdt object obta
 \dontrun{
 mmdt.obj = get.mmdt.obj(masks = masks, modal1 = t1s, modal2 = flairs,
                         ids = ids, groups = groups)
-results = mmdt(mmdt.obj)
 
-eval = results$evaluated.points
-t.mat = results$teststat.matrix
-p.mat = results$pval.matrix.perm}
+mmdt.results = mmdt(mmdt.obj, mc.adjust = c("BH", "maxt"), nperm = 500,
+                    parallel = TRUE, cores = 4, pb = TRUE)}
 }
