@@ -153,6 +153,42 @@ summarize.mmdt<-function(mmdt.results){
       }
     }
   }else{
+    if(bh==T){
+      if(sum(mmdt.results$pval.matrix.BH.corrected<.05)>0){
+        coords=which(mmdt.results$pval.matrix.BH.corrected<.05,arr.ind=T)
+        dmat=which(as.matrix(dist(coords))==1,arr.ind=T)
+        g=graph_from_edgelist(dmat)
+        clumps=clusters(g)$membership
+
+        tmat=mmdt.results$teststat.matrix
+        dims.by=NULL
+        signs=NULL
+        ctab=sort(table(clumps),decreasing=T)
+        ctab=ctab[ctab>1]
+        for(i in as.numeric(names(ctab))){
+          tdim=coords[clumps==i,]
+          tvals=tmat[tdim]
+          maxdim=which.max(abs(tvals))
+          tdim=tdim[maxdim,]
+          maxval=tvals[maxdim]
+          tcoords=rep(NA,length(tdim))
+          for(j in 1:length(tdim)){
+            tcoords[j]=mmdt.results$evaluated.points[[j]][tdim[j]]
+          }
+          signs=c(signs,ifelse(maxval>0,"more","fewer"))
+          dims.by=rbind(dims.by,tcoords)
+        }
+        cat("After BH correction, there are significant differences in subjects' densities by group.\n")
+        cat("Specifically, relative to group ",groups[2],", group ",groups[1]," appears to have:\n",sep="")
+        for(i in 1:nrow(dims.by)){
+          cat("   - ",signs[i]," voxels near {",paste(round(dims.by[i,],3),collapse=", "),"}\n",sep="")
+        }
+        cat("\n")
+      }else{
+        cat("After BH correction, there are no significant differences in subjects' densities by group.\n")
+        cat("\n")
+      }
+    }
     if(by==T){
       if(sum(mmdt.results$pval.matrix.BY.corrected<.05)>0){
         coords=which(mmdt.results$pval.matrix.BY.corrected<.05,arr.ind=T)
