@@ -39,11 +39,6 @@ get.mmdt.obj<-function(masks,modal1,modal2,modal3=NULL,
   non.nulls=which(unlist(lapply(modals,is.null))==F)
   modals=modals[non.nulls]
 
-  if(!file.exists(paste0(getwd(),"/",masks[1]))){
-    stop("Error reading subjects: Make sure your working directory is compatible
-         with the filepaths listed in your mask and modal# vectors.")
-  }
-
   if(length(unique(groups))!=2){
     stop("'groups' must have two unique categories")
   }
