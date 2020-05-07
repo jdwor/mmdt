@@ -15,7 +15,7 @@ readSubject<-function(x,masks,modals,ids,groups){
   mat[,1]=id
   mat[,2]=group
   for(i in 1:length(ims)){
-    if(!file.exists(ims[i])){
+    if(!file.exists(ims[[i]])){
       stop("Error reading subjects: Make sure your working directory is compatible
          with the filepaths listed in your mask and modal# vectors.")
     }
