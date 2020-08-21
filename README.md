@@ -10,7 +10,7 @@ outcomes”](http://dx.doi.org/10.1093/biostatistics/kxz058) by Dworkin
 et al. published in *Biostatistics*. This package creates data
 structures necessary for applying the method to imaging data, then
 allows the user to perform the analyses, summarize the results, and
-create figures for visualization.
+create figures.
 
 ## Installation
 
