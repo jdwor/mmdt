@@ -8,3 +8,4 @@ bioc_required: true
 os:
 - linux
 - osx
+osx_image: xcode12.2
