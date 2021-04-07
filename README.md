@@ -10,7 +10,7 @@ outcomes”](http://dx.doi.org/10.1093/biostatistics/kxz058) by Dworkin
 et al. published in *Biostatistics*. This package creates data
 structures necessary for applying the method to imaging data, then
 allows the user to perform the analyses, summarize the results, and
-create figures.
+create figures for visualization.
 
 ## Installation
 
@@ -261,7 +261,6 @@ sig.mask.s1 = mmdt.to.brain(mmdt.results, type = "significance",
 writeNifti(sig.mask.s1, file="mmdt.sig.01.nii.gz")
 ```
 
-There you have it\! Feel free to reach out to
-jdwor\[at\]pennmedicine\[dot\]upenn\[dot\]edu if you have any questions
-about the package. This page will be updated with more information when
-the MMDT paper is published and publicly available.
+There you have it\! Feel free to reach out to jordan.dworkin \[at\]
+nyspi \[dot\] columbia \[dot\] edu if you have any questions about the
+package.
